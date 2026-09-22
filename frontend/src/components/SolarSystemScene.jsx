@@ -8,14 +8,17 @@ import * as THREE from 'three';
 const textureCache = new Map();
 const textureLoader = new THREE.TextureLoader();
 
+const BASE_PATH = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/\/$/, '') : '';
+
 function getTexture(url) {
   if (!url) return null;
-  if (!textureCache.has(url)) {
-    const tex = textureLoader.load(url);
+  const resolvedUrl = url.startsWith('/') ? `${BASE_PATH}${url}` : url;
+  if (!textureCache.has(resolvedUrl)) {
+    const tex = textureLoader.load(resolvedUrl);
     tex.colorSpace = THREE.SRGBColorSpace;
-    textureCache.set(url, tex);
+    textureCache.set(resolvedUrl, tex);
   }
-  return textureCache.get(url);
+  return textureCache.get(resolvedUrl);
 }
 
 // High-Fidelity Radial Gradient Glow Textures (Zero polygonal edges)

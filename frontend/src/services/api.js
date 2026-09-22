@@ -1,4 +1,5 @@
 const API_BASE = '/api';
+const BASE_PATH = import.meta.env.BASE_URL ? import.meta.env.BASE_URL.replace(/\/$/, '') : '';
 
 export async function fetchCelestialBodies() {
   try {
@@ -7,7 +8,7 @@ export async function fetchCelestialBodies() {
   } catch (e) {
     // Fallback to static asset for GitHub Pages / offline hosting
   }
-  const fallback = await fetch('/celestial_bodies.json');
+  const fallback = await fetch(`${BASE_PATH}/celestial_bodies.json`);
   if (!fallback.ok) throw new Error('Failed to load celestial bodies data');
   return fallback.json();
 }
@@ -19,7 +20,7 @@ export async function fetchHeldOutSamples() {
   } catch (e) {
     // Fallback to static asset for GitHub Pages
   }
-  const fallback = await fetch('/held_out_samples.json');
+  const fallback = await fetch(`${BASE_PATH}/held_out_samples.json`);
   if (!fallback.ok) throw new Error('Failed to load held-out samples');
   return fallback.json();
 }
@@ -31,7 +32,7 @@ export async function fetchMetrics() {
   } catch (e) {
     // Fallback to static asset for GitHub Pages
   }
-  const fallback = await fetch('/metrics.json');
+  const fallback = await fetch(`${BASE_PATH}/metrics.json`);
   if (!fallback.ok) throw new Error('Failed to load metrics data');
   return fallback.json();
 }
