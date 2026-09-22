@@ -78,44 +78,45 @@ export default function InspectorPanel({ body, onClose }) {
   };
 
   return (
-    <aside className="absolute top-16 left-4 bottom-4 w-84 max-w-[90vw] apple-glass-card rounded-2xl z-30 flex flex-col text-white shadow-2xl overflow-hidden border border-white/15">
-      {/* Header (Apple Maps Place Card Header) */}
-      <div className="p-4 border-b border-white/10 flex items-start justify-between bg-black/20">
+    <aside className="absolute top-16 left-4 bottom-4 w-80 max-w-[90vw] apple-glass-card rounded-xl z-30 flex flex-col text-white shadow-2xl overflow-hidden border border-white/12">
+      {/* Header (macOS Sequoia Inspector Header) */}
+      <div className="px-4 py-3 border-b border-white/8 flex items-start justify-between bg-black/20">
         <div>
-          <div className="text-[10px] font-semibold text-white/45 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-white/40 uppercase tracking-wider">
             {body.orbitTarget ? `Moon of ${body.orbitTarget.toUpperCase()}` : body.designation}
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight mt-0.5">
+          <h2 className="text-[17px] font-semibold text-white tracking-tight mt-0.5">
             {body.name}
           </h2>
-          <div className="text-xs text-white/60 font-medium">
+          <div className="text-[11px] text-white/55 font-normal">
             {body.type}
           </div>
         </div>
 
+        {/* macOS Window Close Button */}
         <button
           onClick={onClose}
-          className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/25 flex items-center justify-center text-white/70 hover:text-white transition-all"
+          className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white flex items-center justify-center transition-colors"
           title="Close (Esc)"
         >
-          <X size={14} />
+          <X size={11} />
         </button>
       </div>
 
       {/* Body Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5">
         {/* Description */}
-        <p className="text-xs text-white/75 leading-relaxed bg-white/[0.04] p-3 rounded-xl border border-white/[0.06]">
+        <p className="text-[12px] text-white/75 leading-relaxed bg-black/20 p-3 rounded-lg border border-white/6">
           {body.description}
         </p>
 
-        {/* Apple Maps List Style Key Facts */}
+        {/* macOS Settings Inset Grouped Key Facts */}
         <div>
-          <h3 className="text-[10px] font-semibold text-white/45 uppercase tracking-wider mb-2">
+          <h3 className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-1.5 px-0.5">
             Characteristics
           </h3>
-          <div className="bg-white/[0.04] rounded-xl border border-white/[0.06] overflow-hidden text-xs divide-y divide-white/[0.06]">
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
+          <div className="bg-black/25 rounded-lg border border-white/8 overflow-hidden text-[12px] divide-y divide-white/6">
+            <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-white/50">Orbit Radius</span>
               <span className="font-medium text-white tabular-nums">
                 {body.orbitTarget
@@ -125,28 +126,28 @@ export default function InspectorPanel({ body, onClose }) {
                   : 'Center of System'}
               </span>
             </div>
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
+            <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-white/50">Orbital Period</span>
               <span className="font-medium text-white tabular-nums">
                 {body.pl_orbper > 0 ? `${body.pl_orbper.toLocaleString()} days` : 'N/A'}
               </span>
             </div>
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
+            <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-white/50">Radius</span>
               <span className="font-medium text-white tabular-nums">{body.pl_rade} R⊕</span>
             </div>
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
+            <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-white/50">Mass</span>
               <span className="font-medium text-white tabular-nums">{body.pl_bmasse.toLocaleString()} M⊕</span>
             </div>
-            <div className="px-3.5 py-2.5 flex items-center justify-between">
+            <div className="px-3 py-2 flex items-center justify-between">
               <span className="text-white/50">Equilibrium Temp</span>
               <span className="font-medium text-white tabular-nums">
                 {body.pl_eqt} K ({Math.round(body.pl_eqt - 273.15)}°C)
               </span>
             </div>
             {body.axialTilt !== undefined && (
-              <div className="px-3.5 py-2.5 flex items-center justify-between">
+              <div className="px-3 py-2 flex items-center justify-between">
                 <span className="text-white/50">Axial Tilt</span>
                 <span className="font-medium text-white tabular-nums">{body.axialTilt}°</span>
               </div>
@@ -155,25 +156,25 @@ export default function InspectorPanel({ body, onClose }) {
         </div>
 
         {/* Machine Learning Telemetry Card */}
-        <div className="bg-white/[0.04] rounded-xl p-3.5 border border-white/[0.06] space-y-3">
+        <div className="bg-black/25 rounded-lg p-3 border border-white/8 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-white">
+            <span className="text-[12px] font-semibold text-white">
               Habitability Model
             </span>
             <button
               onClick={() => setShowSliders(!showSliders)}
-              className="text-[11px] font-medium text-[#007AFF] hover:text-[#38a0ff] flex items-center gap-1.5 transition-colors"
+              className="text-[11px] font-medium text-[#007AFF] hover:text-[#38a0ff] flex items-center gap-1 transition-colors"
             >
-              <SlidersHorizontal size={12} />
+              <SlidersHorizontal size={11} />
               <span>{showSliders ? 'Hide Sliders' : 'Simulate'}</span>
             </button>
           </div>
 
-          {/* Apple Style Simulator Sliders */}
+          {/* macOS Style Simulator Sliders */}
           {showSliders && (
-            <div className="p-3 bg-black/40 rounded-xl space-y-2.5 text-xs border border-white/10">
+            <div className="p-2.5 bg-black/40 rounded-lg space-y-2.5 text-[12px] border border-white/8">
               <div className="flex items-center justify-between text-white/50 text-[11px]">
-                <span>Test hypothetical values:</span>
+                <span>Hypothetical values:</span>
                 <button
                   onClick={() => {
                     const reset = {
@@ -235,16 +236,16 @@ export default function InspectorPanel({ body, onClose }) {
           )}
 
           {loading ? (
-            <div className="py-2 text-center text-xs text-white/50">
+            <div className="py-2 text-center text-[12px] text-white/40">
               Running model...
             </div>
           ) : prediction ? (
-            <div className="space-y-2 text-xs">
-              <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
+            <div className="space-y-2 text-[12px]">
+              <div className="bg-black/30 p-2.5 rounded-lg border border-white/6 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-white/45 block uppercase font-medium">Classification</span>
+                  <span className="text-[10px] text-white/40 block uppercase font-medium">Classification</span>
                   <span
-                    className={`inline-block mt-1 px-2 py-0.5 rounded-md text-xs font-semibold ${getTierBadge(
+                    className={`inline-block mt-0.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${getTierBadge(
                       prediction.habitability_tier
                     )}`}
                   >
@@ -253,25 +254,25 @@ export default function InspectorPanel({ body, onClose }) {
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[10px] text-white/45 block uppercase font-medium">ESI Score</span>
-                  <span className="text-sm font-bold text-white mt-0.5 block tabular-nums">
+                  <span className="text-[10px] text-white/40 block uppercase font-medium">ESI Score</span>
+                  <span className="text-[13px] font-semibold text-white mt-0.5 block tabular-nums">
                     {prediction.esi_score.toFixed(2)}
-                    <span className="text-xs text-white/40 font-normal"> / 1.0</span>
+                    <span className="text-[11px] text-white/40 font-normal"> / 1.0</span>
                   </span>
                 </div>
               </div>
 
-              <div className="bg-black/30 p-2.5 rounded-xl border border-white/5 flex items-center justify-between">
+              <div className="bg-black/30 p-2.5 rounded-lg border border-white/6 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-white/45 block uppercase font-medium">Model Predicted Radius</span>
-                  <span className="text-sm font-semibold text-white mt-0.5 block tabular-nums">
+                  <span className="text-[10px] text-white/40 block uppercase font-medium">Model Predicted Radius</span>
+                  <span className="text-[13px] font-medium text-white mt-0.5 block tabular-nums">
                     {prediction.predicted_radius} R⊕
                   </span>
                 </div>
                 {prediction.actual_radius && (
                   <div className="text-right">
-                    <span className="text-[10px] text-white/45 block uppercase font-medium">Actual</span>
-                    <span className="text-xs text-white/80 font-medium mt-0.5 block tabular-nums">
+                    <span className="text-[10px] text-white/40 block uppercase font-medium">Actual</span>
+                    <span className="text-[11px] text-white/70 font-normal mt-0.5 block tabular-nums">
                       {prediction.actual_radius} R⊕
                     </span>
                   </div>

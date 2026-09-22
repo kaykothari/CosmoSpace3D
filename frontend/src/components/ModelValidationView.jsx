@@ -49,28 +49,28 @@ export default function ModelValidationView() {
   const radius = metrics?.radius_regressor;
 
   return (
-    <div className="w-full h-full overflow-y-auto bg-[#050608] pt-24 pb-16 px-6 sm:px-12 text-white">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Banner (Apple Card Style, Zero Gradients) */}
-        <div className="apple-glass-card rounded-2xl p-6 sm:p-7 shadow-2xl border border-white/14">
+    <div className="w-full h-full overflow-y-auto bg-[#050608] pt-20 pb-16 px-6 sm:px-12 text-white">
+      <div className="max-w-5xl mx-auto space-y-5">
+        {/* Banner (macOS Sequoia Sheet Banner) */}
+        <div className="apple-glass-card rounded-xl p-5 sm:p-6 shadow-xl border border-white/12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="text-[11px] font-semibold text-[#007AFF] tracking-wider block uppercase mb-1">
                 Model Evaluation
               </span>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-semibold text-white tracking-tight">
                 NASA Exoplanet Archive Verification
               </h2>
-              <p className="text-xs sm:text-sm text-white/60 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-[12px] sm:text-[13px] text-white/60 mt-1 max-w-2xl leading-relaxed">
                 Benchmarked on 950 unseen test records. Both habitability classifier and radius regressor beat formal baselines.
               </p>
             </div>
 
-            <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-3.5 flex items-center gap-3 shrink-0">
-              <Award className="text-[#34C759]" size={26} />
+            <div className="bg-black/25 border border-white/8 rounded-lg p-3 flex items-center gap-3 shrink-0">
+              <Award className="text-[#34C759]" size={24} />
               <div>
                 <span className="text-[10px] text-white/45 block uppercase font-medium">RMSE Reduction</span>
-                <span className="text-lg font-bold text-[#34C759] tabular-nums">
+                <span className="text-[17px] font-semibold text-[#34C759] tabular-nums">
                   +{radius?.rmse_improvement_pct ?? 29.97}%
                 </span>
                 <span className="text-[10px] text-white/45 block">Over Linear Regression</span>
@@ -82,34 +82,34 @@ export default function ModelValidationView() {
         {/* Side-by-Side Comparison Tables */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Classification */}
-          <div className="apple-glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-white/14">
-            <h3 className="text-sm font-semibold text-white">
+          <div className="apple-glass-card rounded-xl p-4 space-y-2.5 border border-white/12">
+            <h3 className="text-[13px] font-semibold text-white">
               Habitability Classifier (3 Tiers)
             </h3>
-            <table className="w-full text-xs">
+            <table className="w-full text-[12px]">
               <thead>
-                <tr className="text-white/45 border-b border-white/10 text-left">
+                <tr className="text-white/45 border-b border-white/8 text-left">
                   <th className="pb-2 font-medium">Metric</th>
                   <th className="pb-2 font-medium text-white/50">Logistic Reg</th>
                   <th className="pb-2 font-medium text-[#007AFF]">Random Forest</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.06] text-white/90">
+              <tbody className="divide-y divide-white/6 text-white/90">
                 <tr>
-                  <td className="py-2.5 text-white/50">Accuracy</td>
-                  <td className="py-2.5 tabular-nums">
+                  <td className="py-2 text-white/50">Accuracy</td>
+                  <td className="py-2 tabular-nums">
                     {(habitability?.baseline_logistic_regression?.accuracy * 100).toFixed(1)}%
                   </td>
-                  <td className="py-2.5 font-semibold text-[#34C759] tabular-nums">
+                  <td className="py-2 font-semibold text-[#34C759] tabular-nums">
                     {(habitability?.random_forest?.accuracy * 100).toFixed(1)}%
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 text-white/50">F1 Score</td>
-                  <td className="py-2.5 tabular-nums">
+                  <td className="py-2 text-white/50">F1 Score</td>
+                  <td className="py-2 tabular-nums">
                     {(habitability?.baseline_logistic_regression?.f1_weighted * 100).toFixed(1)}%
                   </td>
-                  <td className="py-2.5 font-semibold text-[#34C759] tabular-nums">
+                  <td className="py-2 font-semibold text-[#34C759] tabular-nums">
                     {(habitability?.random_forest?.f1_weighted * 100).toFixed(1)}%
                   </td>
                 </tr>
@@ -118,30 +118,30 @@ export default function ModelValidationView() {
           </div>
 
           {/* Regression */}
-          <div className="apple-glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-white/14">
-            <h3 className="text-sm font-semibold text-white">
+          <div className="apple-glass-card rounded-xl p-4 space-y-2.5 border border-white/12">
+            <h3 className="text-[13px] font-semibold text-white">
               Radius Regressor (Earth Radii)
             </h3>
-            <table className="w-full text-xs">
+            <table className="w-full text-[12px]">
               <thead>
-                <tr className="text-white/45 border-b border-white/10 text-left">
+                <tr className="text-white/45 border-b border-white/8 text-left">
                   <th className="pb-2 font-medium">Metric</th>
                   <th className="pb-2 font-medium text-white/50">Linear Reg</th>
                   <th className="pb-2 font-medium text-[#007AFF]">Random Forest</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.06] text-white/90">
+              <tbody className="divide-y divide-white/6 text-white/90">
                 <tr>
-                  <td className="py-2.5 text-white/50">RMSE</td>
-                  <td className="py-2.5 tabular-nums">{radius?.baseline_linear_regression?.rmse?.toFixed(2)} R⊕</td>
-                  <td className="py-2.5 font-semibold text-[#34C759] tabular-nums">
+                  <td className="py-2 text-white/50">RMSE</td>
+                  <td className="py-2 tabular-nums">{radius?.baseline_linear_regression?.rmse?.toFixed(2)} R⊕</td>
+                  <td className="py-2 font-semibold text-[#34C759] tabular-nums">
                     {radius?.random_forest?.rmse?.toFixed(2)} R⊕
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-2.5 text-white/50">R² Score</td>
-                  <td className="py-2.5 tabular-nums">{radius?.baseline_linear_regression?.r2?.toFixed(2)}</td>
-                  <td className="py-2.5 font-semibold text-[#34C759] tabular-nums">
+                  <td className="py-2 text-white/50">R² Score</td>
+                  <td className="py-2 tabular-nums">{radius?.baseline_linear_regression?.r2?.toFixed(2)}</td>
+                  <td className="py-2 font-semibold text-[#34C759] tabular-nums">
                     {radius?.random_forest?.r2?.toFixed(2)}
                   </td>
                 </tr>
@@ -151,8 +151,8 @@ export default function ModelValidationView() {
         </div>
 
         {/* 5 Held-Out Test Exoplanets */}
-        <div className="space-y-3 pt-2">
-          <h3 className="text-sm font-semibold text-white">
+        <div className="space-y-2.5 pt-1">
+          <h3 className="text-[13px] font-semibold text-white">
             Generalization on 5 Held-Out Test Worlds
           </h3>
 
@@ -162,11 +162,11 @@ export default function ModelValidationView() {
               return (
                 <div
                   key={planet.name}
-                  className="apple-glass-card rounded-2xl p-4 space-y-3 transition-all hover:bg-white/10 border border-white/12"
+                  className="apple-glass-card rounded-xl p-3.5 space-y-2.5 transition-colors hover:bg-white/10 border border-white/10"
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="text-sm font-semibold text-white">
+                      <h4 className="text-[13px] font-semibold text-white">
                         {planet.name}
                       </h4>
                       <span className="text-[11px] text-white/50">
@@ -175,7 +175,7 @@ export default function ModelValidationView() {
                     </div>
 
                     <span
-                      className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${getTierBadge(
+                      className={`text-[10px] px-2 py-0.5 rounded font-medium ${getTierBadge(
                         planet.predicted_tier
                       )}`}
                     >
@@ -183,22 +183,22 @@ export default function ModelValidationView() {
                     </span>
                   </div>
 
-                  <div className="bg-white/[0.04] rounded-xl p-2.5 text-xs space-y-1.5 border border-white/[0.04]">
+                  <div className="bg-black/25 rounded-md p-2 text-[11px] space-y-1 border border-white/6">
                     <div className="flex justify-between text-white/70">
                       <span className="text-white/45">Actual Radius</span>
-                      <span className="font-semibold tabular-nums">{planet.actual_radius_earth} R⊕</span>
+                      <span className="font-medium tabular-nums">{planet.actual_radius_earth} R⊕</span>
                     </div>
                     <div className="flex justify-between text-white/70">
                       <span className="text-white/45">Predicted Radius</span>
-                      <span className="font-semibold text-white tabular-nums">{planet.predicted_radius_earth} R⊕</span>
+                      <span className="font-medium text-white tabular-nums">{planet.predicted_radius_earth} R⊕</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[11px] text-white/45 pt-0.5">
+                  <div className="flex items-center justify-between text-[11px] text-white/40 pt-0.5">
                     <span>Truth: {planet.ground_truth_tier}</span>
                     {matched && (
                       <span className="flex items-center gap-1 text-[#34C759] font-medium">
-                        <CheckCircle2 size={12} /> Match
+                        <CheckCircle2 size={11} /> Match
                       </span>
                     )}
                   </div>

@@ -3,6 +3,7 @@ import TelemetryHeader from './components/TelemetryHeader';
 import SolarSystemScene from './components/SolarSystemScene';
 import InspectorPanel from './components/InspectorPanel';
 import SimulationControls from './components/SimulationControls';
+import DateTimeDock from './components/DateTimeDock';
 import ModelValidationView from './components/ModelValidationView';
 import { fetchCelestialBodies } from './services/api';
 
@@ -13,6 +14,7 @@ export default function App() {
   const [simulationSpeed, setSimulationSpeed] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const [resetTrigger, setResetTrigger] = useState(0);
+  const [simulatedDate, setSimulatedDate] = useState(() => new Date());
 
   useEffect(() => {
     async function init() {
@@ -24,6 +26,38 @@ export default function App() {
       }
     }
     init();
+  }, []);
+
+  // Clock progression loop: 60 real seconds = 1 Earth day (86400s) => 1440 simulated seconds per real second at 1x
+  useEffect(() => {
+    let lastTime = performance.now();
+    let animId;
+
+    const tick = (now) => {
+      const deltaSeconds = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (!isPaused && deltaSeconds > 0 && deltaSeconds < 1) {
+        const simDeltaMs = deltaSeconds * simulationSpeed * 1440 * 1000;
+        setSimulatedDate((prev) => new Date(prev.getTime() + simDeltaMs));
+      }
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isPaused, simulationSpeed]);
+
+  // Spacebar keyboard listener to toggle simulation pause
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setIsPaused((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleResetCamera = () => {
@@ -54,9 +88,18 @@ export default function App() {
             simulationSpeed={simulationSpeed}
             isPaused={isPaused}
             resetTrigger={resetTrigger}
+            simulatedDate={simulatedDate}
           />
 
-          {/* Apple Maps Bottom Floating Playback Controls */}
+          {/* macOS Sequoia Date & Time Dock (Left) */}
+          <DateTimeDock
+            simulatedDate={simulatedDate}
+            setSimulatedDate={setSimulatedDate}
+            simulationSpeed={simulationSpeed}
+            isPaused={isPaused}
+          />
+
+          {/* Apple Maps Bottom Floating Playback Controls (Right) */}
           <SimulationControls
             isPaused={isPaused}
             setIsPaused={setIsPaused}

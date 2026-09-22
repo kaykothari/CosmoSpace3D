@@ -538,6 +538,7 @@
     "rotationSpeed": -0.008,
     "axialTilt": 122.53,
     "textureUrl": "/textures/pluto.jpg",
+    "bumpUrl": "/textures/pluto_bump.jpg",
     "pl_bmasse": 0.0022,
     "pl_rade": 0.186,
     "pl_eqt": 44.0,

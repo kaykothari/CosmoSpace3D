@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
 // Texture Loader cache with fallback
@@ -61,7 +62,7 @@ function getSelectionGlowTexture() {
 }
 
 // Asteroid / Meteor Field using InstancedMesh
-function AsteroidBelt({ innerRadius, outerRadius, count, color = '#64748b', speed = 0.005 }) {
+function AsteroidBelt({ innerRadius, outerRadius, count, color = '#64748b', speed = 0.005, isPaused = false }) {
   const meshRef = useRef();
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -91,7 +92,7 @@ function AsteroidBelt({ innerRadius, outerRadius, count, color = '#64748b', spee
   }, [asteroidData, count, dummy]);
 
   useFrame((state, delta) => {
-    if (meshRef.current) {
+    if (meshRef.current && !isPaused) {
       meshRef.current.rotation.y += speed * delta;
     }
   });
@@ -182,31 +183,88 @@ function SpaceBackdrop({ onDeselect }) {
 }
 
 // Gradiented Selection Glow: Seamless continuous radial gradient aura with gentle breathing pulse
-function SelectionGlow({ size, isSun = false }) {
+function SelectionGlow({ size, isSun = false, isPaused = false }) {
   const spriteRef = useRef();
   const glowTexture = useMemo(() => getSelectionGlowTexture(), []);
+  const baseScale = isSun ? size * 4.6 : size * 3.2;
 
   useFrame((state) => {
-    if (spriteRef.current) {
+    if (spriteRef.current && !isPaused) {
       const pulse = 1.0 + Math.sin(state.clock.elapsedTime * 2.8) * 0.035;
-      const baseScale = size * 3.2;
       spriteRef.current.scale.set(baseScale * pulse, baseScale * pulse, 1);
     }
   });
 
-  if (isSun || !glowTexture) return null;
+  if (!glowTexture) return null;
 
   return (
-    <sprite ref={spriteRef} scale={[size * 3.2, size * 3.2, 1]} raycast={() => null}>
+    <sprite ref={spriteRef} scale={[baseScale, baseScale, 1]} raycast={() => null}>
       <spriteMaterial
         map={glowTexture}
         transparent
         blending={THREE.AdditiveBlending}
         depthWrite={false}
-        opacity={0.88}
+        opacity={isSun ? 0.95 : 0.88}
       />
     </sprite>
   );
+}
+
+// J2000 Astronomical Reference Epoch (Jan 1, 2000, 12:00 UTC)
+const J2000_EPOCH = Date.UTC(2000, 0, 1, 12, 0, 0);
+
+// Mean Longitudes at J2000 Epoch (radians)
+const J2000_MEAN_LONGITUDE = {
+  sun: 0,
+  mercury: (252.25 * Math.PI) / 180,
+  venus: (181.98 * Math.PI) / 180,
+  earth: (100.46 * Math.PI) / 180,
+  mars: (355.45 * Math.PI) / 180,
+  jupiter: (34.40 * Math.PI) / 180,
+  saturn: (49.94 * Math.PI) / 180,
+  uranus: (313.23 * Math.PI) / 180,
+  neptune: (304.88 * Math.PI) / 180,
+  pluto: (238.90 * Math.PI) / 180,
+  moon: (218.32 * Math.PI) / 180,
+};
+
+const CELESTIAL_ROTATION_PERIODS = {
+  sun: 27.0,
+  mercury: 58.646,
+  venus: -243.02,
+  earth: 1.0,
+  moon: 27.32,
+  mars: 1.026,
+  phobos: 0.3189,
+  jupiter: 0.4135,
+  io: 1.769,
+  europa: 3.551,
+  ganymede: 7.155,
+  callisto: 16.689,
+  saturn: 0.444,
+  titan: 15.945,
+  enceladus: 1.37,
+  mimas: 0.942,
+  uranus: -0.718,
+  miranda: 1.413,
+  titania: 8.706,
+  neptune: 0.671,
+  triton: -5.877,
+  pluto: 6.387,
+  charon: 6.387,
+};
+
+function getBodyOrbitAngle(body, date) {
+  if (!body || body.id === 'sun' || !body.orbitRadius) return 0;
+  const elapsedDays = (date.getTime() - J2000_EPOCH) / (1000 * 86400);
+  const period = body.pl_orbper && body.pl_orbper > 0 ? body.pl_orbper : 365.25;
+  let basePhase = J2000_MEAN_LONGITUDE[body.id];
+  if (basePhase === undefined) {
+    let hash = 0;
+    for (let i = 0; i < body.id.length; i++) hash = (hash * 31 + body.id.charCodeAt(i)) % 1000;
+    basePhase = (hash / 1000) * Math.PI * 2;
+  }
+  return basePhase + (elapsedDays / period) * (Math.PI * 2);
 }
 
 // Celestial Body 3D Mesh
@@ -219,12 +277,12 @@ function CelestialBodyMesh({
   simulationSpeed,
   isPaused,
   bodyPositionsRef,
-  registerBodyPosition
+  registerBodyPosition,
+  simulatedDate
 }) {
   const groupRef = useRef();
   const sphereRef = useRef();
   const ringRef = useRef();
-  const orbitAngleRef = useRef(Math.random() * Math.PI * 2);
 
   const texture = useMemo(() => getTexture(body.textureUrl), [body.textureUrl]);
   const bumpTexture = useMemo(() => getTexture(body.bumpUrl), [body.bumpUrl]);
@@ -251,40 +309,18 @@ function CelestialBodyMesh({
     return geo;
   }, [body.hasRings, body.ringInnerRadius, body.ringOuterRadius]);
 
-  // Astronomically calibrated relative rotation speeds anchored to a cinematic 60s Earth day
-  const spinRate = useMemo(() => {
-    // 1 Earth Day = 60s (0.105 rad/s)
-    if (body.id === 'earth') return 0.105;
-    // Mars: 24.6h day (~identical to Earth)
-    if (body.id === 'mars') return 0.102;
-    // Jupiter: 9.9h day (2.4x faster than Earth)
-    if (body.id === 'jupiter') return 0.254;
-    // Saturn: 10.7h day (2.24x faster than Earth)
-    if (body.id === 'saturn') return 0.235;
-    // Uranus: 17.2h day (retrograde)
-    if (body.id === 'uranus') return -0.146;
-    // Neptune: 16.1h day
-    if (body.id === 'neptune') return 0.156;
-    // Mercury: 58.6 Earth days (very slow)
-    if (body.id === 'mercury') return 0.025;
-    // Venus: 243 Earth days (extremely slow retrograde)
-    if (body.id === 'venus') return -0.015;
-    // Sun: ~27 days rotation
-    if (body.id === 'sun') return 0.035;
-    // Moons: gentle tidal pace
-    return 0.08;
-  }, [body.id]);
-
   useFrame((state, delta) => {
-    // 1. VISIBLE AXIAL ROTATION ON INNER SPHERE
-    if (sphereRef.current && !isPaused) {
-      sphereRef.current.rotation.y += spinRate * delta * simulationSpeed;
+    const date = simulatedDate || new Date();
+    const elapsedDays = (date.getTime() - J2000_EPOCH) / (1000 * 86400);
+
+    // 1. VISIBLE AXIAL ROTATION ON INNER SPHERE (Synchronized with simulated time)
+    if (sphereRef.current) {
+      const rotPeriod = CELESTIAL_ROTATION_PERIODS[body.id] || 1.0;
+      sphereRef.current.rotation.y = (elapsedDays / rotPeriod) * Math.PI * 2;
     }
 
-    // 2. Orbital Revolution
-    if (!isPaused && body.orbitSpeed !== 0) {
-      orbitAngleRef.current += body.orbitSpeed * delta * simulationSpeed * 0.35;
-    }
+    // 2. Exact Ephemeris Orbital Angle directly derived from simulatedDate
+    const orbitAngle = getBodyOrbitAngle(body, date);
 
     // 3. Position Calculation
     if (body.id === 'sun') {
@@ -293,14 +329,14 @@ function CelestialBodyMesh({
     } else if (body.orbitTarget) {
       const parentPos = bodyPositionsRef.current[body.orbitTarget];
       if (parentPos && groupRef.current) {
-        const x = parentPos.x + Math.cos(orbitAngleRef.current) * body.orbitRadius;
-        const z = parentPos.z + Math.sin(orbitAngleRef.current) * body.orbitRadius;
+        const x = parentPos.x + Math.cos(orbitAngle) * body.orbitRadius;
+        const z = parentPos.z + Math.sin(orbitAngle) * body.orbitRadius;
         groupRef.current.position.set(x, parentPos.y, z);
         registerBodyPosition(body.id, groupRef.current.position);
       }
     } else {
-      const x = Math.cos(orbitAngleRef.current) * body.orbitRadius;
-      const z = Math.sin(orbitAngleRef.current) * body.orbitRadius;
+      const x = Math.cos(orbitAngle) * body.orbitRadius;
+      const z = Math.sin(orbitAngle) * body.orbitRadius;
       if (groupRef.current) {
         groupRef.current.position.set(x, 0, z);
         registerBodyPosition(body.id, groupRef.current.position);
@@ -383,7 +419,7 @@ function CelestialBodyMesh({
         </group>
 
         {/* Selected Highlight Atmospheric Glow (Replaces flat ring reticle) */}
-        {isSelected && <SelectionGlow size={body.size} isSun={isSun} />}
+        {isSelected && <SelectionGlow size={body.size} isSun={isSun} isPaused={isPaused} />}
 
         {/* Radiant Sun Corona Glow (Seamless Radial Gradient Billboard Sprite - Replaces the 2 hard spheres) */}
         {isSun && sunCorona && (
@@ -568,7 +604,8 @@ export default function SolarSystemScene({
   onSelectBody,
   simulationSpeed = 1,
   isPaused = false,
-  resetTrigger = 0
+  resetTrigger = 0,
+  simulatedDate
 }) {
   const controlsRef = useRef();
   const bodyPositionsRef = useRef({});
@@ -616,13 +653,13 @@ export default function SolarSystemScene({
         <pointLight position={[0, 0, 0]} intensity={200} distance={800} decay={0.8} color="#fde047" />
 
         {/* Expansive Deep Space Starfield */}
-        <Stars radius={400} depth={120} count={6500} factor={4} saturation={0} fade speed={0.4} />
+        <Stars radius={400} depth={120} count={6500} factor={4} saturation={0} fade speed={isPaused ? 0 : 0.4} />
 
         {/* Meteor & Asteroid Fields */}
         {/* Main Asteroid Belt (Between Mars 26.0 and Jupiter 52.0) */}
-        <AsteroidBelt innerRadius={31.0} outerRadius={38.0} count={1400} color="#78716c" speed={0.007} />
+        <AsteroidBelt innerRadius={31.0} outerRadius={38.0} count={1400} color="#78716c" speed={0.007} isPaused={isPaused} />
         {/* Kuiper Belt (Beyond Neptune 152.0 and Pluto 182.0) */}
-        <AsteroidBelt innerRadius={190.0} outerRadius={230.0} count={1000} color="#94a3b8" speed={0.002} />
+        <AsteroidBelt innerRadius={190.0} outerRadius={230.0} count={1000} color="#94a3b8" speed={0.002} isPaused={isPaused} />
 
         {/* Primary Planetary Orbit Path Rings */}
         {celestialBodies
@@ -648,6 +685,7 @@ export default function SolarSystemScene({
             isPaused={isPaused}
             bodyPositionsRef={bodyPositionsRef}
             registerBodyPosition={registerBodyPosition}
+            simulatedDate={simulatedDate}
           />
         ))}
 
@@ -671,6 +709,16 @@ export default function SolarSystemScene({
           controlsRef={controlsRef}
           resetTrigger={resetTrigger}
         />
+
+        {/* Subtle, Balanced Post-Processing Bloom */}
+        <EffectComposer multisampling={0} disableNormalPass>
+          <Bloom
+            luminanceThreshold={0.9}
+            luminanceSmoothing={0.2}
+            intensity={0.4}
+            mipmapBlur
+          />
+        </EffectComposer>
       </Canvas>
     </div>
   );
