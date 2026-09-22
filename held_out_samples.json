@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Kepler-1649 c",
+    "actual_radius_earth": 1.06,
+    "predicted_radius_earth": 1.77,
+    "radius_error": 0.71,
+    "ground_truth_tier": "Earth-Like",
+    "predicted_tier": "Earth-Like",
+    "esi_score": 0.933,
+    "equilibrium_temp_k": 234.0,
+    "orbital_period_days": 19.54
+  },
+  {
+    "name": "Kepler-1127 b",
+    "actual_radius_earth": 1.96,
+    "predicted_radius_earth": 2.16,
+    "radius_error": 0.2,
+    "ground_truth_tier": "Sub-Surface",
+    "predicted_tier": "Sub-Surface",
+    "esi_score": 0.563,
+    "equilibrium_temp_k": 940.5,
+    "orbital_period_days": 5.12
+  },
+  {
+    "name": "Kepler-1168 b",
+    "actual_radius_earth": 2.5,
+    "predicted_radius_earth": 3.31,
+    "radius_error": 0.81,
+    "ground_truth_tier": "Sub-Surface",
+    "predicted_tier": "Sub-Surface",
+    "esi_score": 0.518,
+    "equilibrium_temp_k": 940.5,
+    "orbital_period_days": 55.82
+  },
+  {
+    "name": "HAT-P-37 b",
+    "actual_radius_earth": 13.2,
+    "predicted_radius_earth": 12.25,
+    "radius_error": 0.95,
+    "ground_truth_tier": "Uninhabitable",
+    "predicted_tier": "Uninhabitable",
+    "esi_score": 0.228,
+    "equilibrium_temp_k": 1271.0,
+    "orbital_period_days": 2.8
+  },
+  {
+    "name": "TOI-2373 b",
+    "actual_radius_earth": 10.42,
+    "predicted_radius_earth": 11.05,
+    "radius_error": 0.63,
+    "ground_truth_tier": "Uninhabitable",
+    "predicted_tier": "Uninhabitable",
+    "esi_score": 0.296,
+    "equilibrium_temp_k": 860.0,
+    "orbital_period_days": 13.34
+  }
+]
