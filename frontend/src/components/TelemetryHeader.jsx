@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Compass, BarChart3, ChevronDown, X } from 'lucide-react';
+import { Search, Compass, FlaskConical, ChevronDown, X } from 'lucide-react';
 
 export default function TelemetryHeader({
   activeView,
@@ -80,8 +80,8 @@ export default function TelemetryHeader({
                 : 'text-white/60 hover:text-white'
             }`}
           >
-            <BarChart3 size={13} />
-            <span>Model Evaluation</span>
+            <FlaskConical size={13} />
+            <span>Exoplanet ML Lab</span>
           </button>
         </div>
       </div>
